@@ -68,4 +68,63 @@
                 <div>
                     <label class="block text-xs font-medium text-zinc-500 mb-2">ชื่อรายการ / โน้ตเพิ่มเติม</label>
                     <input type="text" id="text" placeholder="เช่น ค่ากาแฟ, เงินเดือนออก" required
-                        class="w-full p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:border-zinc-40
+                        class="w-full p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:border-zinc-400 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-zinc-500 mb-2">จำนวนเงิน (บาท)</label>
+                    <input type="number" id="amount" placeholder="0.00" step="any" required
+                        class="w-full p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:border-zinc-400 transition font-medium">
+                </div>
+
+                <button type="submit" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-medium p-3.5 rounded-xl text-sm transition duration-200 cursor-pointer shadow-xs">
+                    บันทึกรายการ
+                </button>
+            </form>
+
+            <!-- ช่องคำแนะนำ -->
+            <div class="bg-white p-7 rounded-3xl border border-zinc-200/80 shadow-xs flex flex-col justify-center text-center text-zinc-400 text-sm h-full min-h-[350px]">
+                <p class="font-medium text-zinc-700">💡 คำแนะนำการใช้งาน</p>
+                <p class="text-xs text-zinc-400 mt-2">กรอกข้อมูลให้ครบถ้วนแล้วกดบันทึก ระบบจะคำนวณยอดเงินและวาดกราฟสัดส่วนทั้งรายรับและรายจ่ายให้อัตโนมัติ</p>
+            </div>
+        </div>
+
+        <!-- โซนกราฟสัดส่วน 2 กราฟ (รายรับ และ รายจ่าย) -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- กราฟสัดส่วนรายรับ -->
+            <div class="bg-white p-7 rounded-3xl border border-zinc-200/80 shadow-xs flex flex-col">
+                <h2 class="font-medium text-emerald-700 text-base border-b border-zinc-100 pb-3 text-center">สัดส่วนรายรับตามหมวดหมู่</h2>
+                <div class="w-full flex-grow flex items-center justify-center mt-4">
+                    <div class="w-full max-w-[220px] h-auto aspect-square">
+                        <canvas id="incomeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- กราฟสัดส่วนรายจ่าย -->
+            <div class="bg-white p-7 rounded-3xl border border-zinc-200/80 shadow-xs flex flex-col">
+                <h2 class="font-medium text-rose-600 text-base border-b border-zinc-100 pb-3 text-center">สัดส่วนรายจ่ายตามหมวดหมู่</h2>
+                <div class="w-full flex-grow flex items-center justify-center mt-4">
+                    <div class="w-full max-w-[220px] h-auto aspect-square">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ประวัติรายการ -->
+        <div class="bg-white p-7 rounded-3xl border border-zinc-200/80 shadow-xs">
+            <h2 class="font-medium text-zinc-900 text-base border-b border-zinc-100 pb-3 mb-4">ประวัติรายการ</h2>
+            <ul id="list" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+                <!-- รายการจะเพิ่มเข้ามาตรงนี้ -->
+            </ul>
+        </div>
+        
+        <div class="text-center text-zinc-400 text-xs py-2">
+            Minimal Design Project
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
