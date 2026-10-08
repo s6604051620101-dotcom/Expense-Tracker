@@ -3,57 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เว็บแอปพลิเคชันบันทึกรายรับรายจ่าย</title>
-    <!-- Tailwind CSS -->
+    <title>บันทึกรายรับรายจ่าย - Minimal Style</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Chart.js สำหรับทำกราฟ -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Prompt -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/heroicons@2.0.18/css/outline/heroicons-outline.min.css">
     <style>
         body { font-family: 'Prompt', sans-serif; }
+        /* พื้นหลังโทนสีครีม-เทามินิมอล (Warm Neutral) */
+        .bg-minimal { background-color: #F9F8F6; }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen py-8 px-4">
+<body class="bg-minimal text-zinc-800 min-h-screen py-10 px-4 md:py-16">
 
-    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden mb-10">
-        <!-- Header -->
-        <div class="bg-indigo-600 text-white p-6 text-center">
-            <h1 class="text-2xl font-bold">บันทึกรายรับรายจ่าย</h1>
-            <p class="text-indigo-200 text-sm mt-1">โปรเจกต์สำหรับส่งอาจารย์</p>
+    <div class="max-w-xl mx-auto space-y-6">
+        <!-- Header โทนสีครีมละมุน ขอบมนสะอาดตา -->
+        <div class="bg-white border border-zinc-200/80 p-8 rounded-3xl shadow-xs text-center">
+            <h1 class="text-2xl md:text-3xl font-semibold tracking-tight text-zinc-900">บันทึกรายรับรายจ่าย</h1>
+            <p class="text-zinc-400 text-sm mt-1">Minimal Expense Tracker</p>
         </div>
 
-        <div class="p-6 space-y-6">
-            <!-- 1. หน้า Dashboard สรุปยอด -->
-            <div class="grid grid-cols-3 gap-3 text-center">
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                    <p class="text-xs text-slate-500">คงเหลือ</p>
-                    <p id="balance" class="text-lg font-bold text-slate-800">฿0</p>
-                </div>
-                <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-                    <p class="text-xs text-emerald-600">รายรับ</p>
-                    <p id="total-income" class="text-lg font-bold text-emerald-600">฿0</p>
-                </div>
-                <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
-                    <p class="text-xs text-rose-600">รายจ่าย</p>
-                    <p id="total-expense" class="text-lg font-bold text-rose-600">฿0</p>
-                </div>
+        <!-- Dashboard สรุปยอด (โทนสีสว่าง ขอบบาง Clean Look) -->
+        <div class="grid grid-cols-3 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-xs">
+                <p class="text-xs text-zinc-400 font-medium mb-1">ยอดคงเหลือ</p>
+                <p id="balance" class="text-xl md:text-2xl font-semibold text-zinc-900 tracking-tight break-words">฿0</p>
             </div>
+            <div class="bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-xs">
+                <p class="text-xs text-emerald-600 font-medium mb-1">รายรับ</p>
+                <p id="total-income" class="text-xl md:text-2xl font-semibold text-emerald-700 tracking-tight break-words">฿0</p>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-xs">
+                <p class="text-xs text-rose-500 font-medium mb-1">รายจ่าย</p>
+                <p id="total-expense" class="text-xl md:text-2xl font-semibold text-rose-600 tracking-tight break-words">฿0</p>
+            </div>
+        </div>
 
-            <!-- 2. ฟอร์มบันทึกรายการ (เลือกประเภท, หมวดหมู่, จำนวนเงิน, โน้ต) -->
-            <form id="transaction-form" class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <h2 class="font-semibold text-slate-700 text-sm">เพิ่มรายการใหม่</h2>
+        <div class="grid md:grid-cols-2 gap-6 items-start">
+            <!-- ฟอร์มเพิ่มรายการ -->
+            <form id="transaction-form" class="space-y-5 bg-white p-7 rounded-3xl border border-zinc-200/80 shadow-xs">
+                <h2 class="font-medium text-zinc-900 text-base border-b border-zinc-100 pb-3">เพิ่มรายการใหม่</h2>
                 
                 <div>
-                    <label class="block text-xs text-slate-600 mb-1">ประเภทรายการ</label>
-                    <select id="type" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <label class="block text-xs font-medium text-zinc-500 mb-2">ประเภทรายการ</label>
+                    <select id="type" class="w-full p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:border-zinc-400 transition">
                         <option value="income">รายรับ</option>
                         <option value="expense">รายจ่าย</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-xs text-slate-600 mb-1">หมวดหมู่</label>
-                    <select id="category" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <label class="block text-xs font-medium text-zinc-500 mb-2">หมวดหมู่</label>
+                    <select id="category" class="w-full p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:border-zinc-400 transition">
                         <option value="อาหาร">🍜 อาหาร</option>
                         <option value="เดินทาง">🚗 เดินทาง</option>
                         <option value="บันเทิง">🎉 บันเทิง</option>
@@ -64,39 +66,43 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs text-slate-600 mb-1">ชื่อรายการ / โน้ตเพิ่มเติม</label>
-                    <input type="text" id="text" placeholder="เช่น ข้าวมันไก่, ค่ารถไฟฟ้า" required
-                        class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <label class="block text-xs font-medium text-zinc-500 mb-2">ชื่อรายการ / โน้ตเพิ่มเติม</label>
+                    <input type="text" id="text" placeholder="เช่น ค่ากาแฟ, เงินเดือนออก" required
+                        class="w-full p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:border-zinc-400 transition">
                 </div>
 
                 <div>
-                    <label class="block text-xs text-slate-600 mb-1">จำนวนเงิน (บาท)</label>
+                    <label class="block text-xs font-medium text-zinc-500 mb-2">จำนวนเงิน (บาท)</label>
                     <input type="number" id="amount" placeholder="0.00" step="any" required
-                        class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        class="w-full p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:border-zinc-400 transition font-medium">
                 </div>
 
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium p-2.5 rounded-lg text-sm transition duration-200 cursor-pointer">
+                <button type="submit" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-medium p-3.5 rounded-xl text-sm transition duration-200 cursor-pointer shadow-xs">
                     บันทึกรายการ
                 </button>
             </form>
 
-            <!-- 4. กราฟสรุปสัดส่วนรายจ่าย -->
-            <div class="bg-white p-4 rounded-xl border border-slate-200">
-                <h2 class="font-semibold text-slate-700 text-sm mb-3 text-center">สัดส่วนรายจ่ายตามหมวดหมู่</h2>
-                <div class="w-full flex justify-center">
-                    <div class="w-64 h-64">
+            <!-- กราฟสรุปสัดส่วน (โทนสีเอิร์ธทอน/พาสเทลอ่อนๆ) -->
+            <div class="bg-white p-7 rounded-3xl border border-zinc-200/80 shadow-xs h-full flex flex-col">
+                <h2 class="font-medium text-zinc-900 text-base border-b border-zinc-100 pb-3 text-center">สัดส่วนรายจ่าย</h2>
+                <div class="w-full flex-grow flex items-center justify-center mt-4">
+                    <div class="w-full max-w-[240px] h-auto aspect-square">
                         <canvas id="expenseChart"></canvas>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- 3. ตารางประวัติรายการ (พร้อมปุ่มลบ) -->
-            <div>
-                <h2 class="font-semibold text-slate-700 text-sm mb-3">ประวัติรายการ</h2>
-                <ul id="list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                    <!-- รายการจะถูกเพิ่มอัตโนมัติ -->
-                </ul>
-            </div>
+        <!-- ประวัติรายการ -->
+        <div class="bg-white p-7 rounded-3xl border border-zinc-200/80 shadow-xs">
+            <h2 class="font-medium text-zinc-900 text-base border-b border-zinc-100 pb-3 mb-4">ประวัติรายการ</h2>
+            <ul id="list" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+                <!-- รายการจะเพิ่มเข้ามาตรงนี้ -->
+            </ul>
+        </div>
+        
+        <div class="text-center text-zinc-400 text-xs py-2">
+            Minimal Design Project
         </div>
     </div>
 
