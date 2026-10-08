@@ -63,7 +63,6 @@ function addTransactionDOM(transaction) {
     listEl.appendChild(li);
 }
 
-// ฟังก์ชันสร้างและอัปเดตกราฟทั้ง 2 ตัว (รายรับ และ รายจ่าย)
 function updateCharts() {
     // --- 1. กราฟรายรับ ---
     const incomeItems = transactions.filter(item => item.type === 'income');
