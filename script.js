@@ -1,4 +1,3 @@
-// ดึง Element HTML ที่ต้องใช้งาน
 const balanceEl = document.getElementById('balance');
 const totalIncomeEl = document.getElementById('total-income');
 const totalExpenseEl = document.getElementById('total-expense');
@@ -9,16 +8,14 @@ const amountEl = document.getElementById('amount');
 const typeEl = document.getElementById('type');
 const categoryEl = document.getElementById('category');
 
-// ระบบบันทึกข้อมูล (LocalStorage) โหลดข้อมูลเดิมถ้ามี
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+let incomeChart = null;
 let expenseChart = null;
 
-// ฟังก์ชันจัดรูปแบบตัวเลขให้เป็นเงินบาท (เช่น 1,000.00)
 function formatNumber(num) {
     return Number(num).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// 1. หน้า Dashboard สรุปยอด (คำนวณและอัปเดตผลลัพธ์)
 function updateValues() {
     const income = transactions
         .filter(item => item.type === 'income')
@@ -34,11 +31,9 @@ function updateValues() {
     totalIncomeEl.innerText = `฿${formatNumber(income)}`;
     totalExpenseEl.innerText = `฿${formatNumber(expense)}`;
 
-    // อัปเดตกราฟทุกครั้งที่ยอดเงินเปลี่ยนแปลง
-    updateChart();
+    updateCharts();
 }
 
-// 3. ตารางประวัติรายการ พร้อมปุ่มลบ
 function addTransactionDOM(transaction) {
     const sign = transaction.type === 'income' ? '+' : '-';
     const textColor = transaction.type === 'income' ? 'text-emerald-600' : 'text-rose-600';
@@ -68,40 +63,27 @@ function addTransactionDOM(transaction) {
     listEl.appendChild(li);
 }
 
-// 4. กราฟสรุปสัดส่วนรายจ่าย (Chart.js - โทนสีมินิมอล)
-function updateChart() {
-    const expenseItems = transactions.filter(item => item.type === 'expense');
-    
-    const categoryTotals = {};
-    expenseItems.forEach(item => {
-        categoryTotals[item.category] = (categoryTotals[item.category] || 0) + Number(item.amount);
+// ฟังก์ชันสร้างและอัปเดตกราฟทั้ง 2 ตัว (รายรับ และ รายจ่าย)
+function updateCharts() {
+    // --- 1. กราฟรายรับ ---
+    const incomeItems = transactions.filter(item => item.type === 'income');
+    const incomeTotals = {};
+    incomeItems.forEach(item => {
+        incomeTotals[item.category] = (incomeTotals[item.category] || 0) + Number(item.amount);
     });
+    const incomeLabels = Object.keys(incomeTotals);
+    const incomeData = Object.values(incomeTotals);
 
-    const labels = Object.keys(categoryTotals);
-    const data = Object.values(categoryTotals);
+    const ctxIncome = document.getElementById('incomeChart').getContext('2d');
+    if (incomeChart) incomeChart.destroy();
 
-    const ctx = document.getElementById('expenseChart').getContext('2d');
-
-    if (expenseChart) {
-        expenseChart.destroy(); // ล้างกราฟเก่าก่อนวาดใหม่
-    }
-
-    expenseChart = new Chart(ctx, {
+    incomeChart = new Chart(ctxIncome, {
         type: 'doughnut',
         data: {
-            labels: labels.length > 0 ? labels : ['ยังไม่มีรายจ่าย'],
+            labels: incomeLabels.length > 0 ? incomeLabels : ['ยังไม่มีรายรับ'],
             datasets: [{
-                data: data.length > 0 ? data : [1],
-                // ชุดสีสไตล์มินิมอล (Earth Tone / Pastel)
-                backgroundColor: [
-                    '#D4A373', // Warm Sand
-                    '#CCD5AE', // Sage
-                    '#E9EDC9', // Soft Green
-                    '#FAEDCD', // Soft Yellow
-                    '#F4A261', // Terracotta
-                    '#E76F51', // Burnt Orange
-                    '#E4E4E7'  // Light Zinc
-                ],
+                data: incomeData.length > 0 ? incomeData : [1],
+                backgroundColor: ['#34D399', '#6EE7B7', '#10B981', '#059669', '#A7F3D0', '#E4E4E7'],
                 borderWidth: 0,
                 hoverOffset: 4
             }]
@@ -112,11 +94,50 @@ function updateChart() {
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: {
-                        font: { family: "'Prompt', sans-serif", size: 11 },
-                        color: '#71717a', // สีเทาเข้มมินิมอล
-                        padding: 15
-                    }
+                    labels: { font: { family: "'Prompt', sans-serif", size: 11 }, color: '#71717a', padding: 12 }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(24, 24, 27, 0.9)',
+                    titleFont: { family: "'Prompt', sans-serif" },
+                    bodyFont: { family: "'Prompt', sans-serif" },
+                    cornerRadius: 8,
+                    displayColors: false
+                }
+            },
+            cutout: '72%'
+        }
+    });
+
+    // --- 2. กราฟรายจ่าย ---
+    const expenseItems = transactions.filter(item => item.type === 'expense');
+    const expenseTotals = {};
+    expenseItems.forEach(item => {
+        expenseTotals[item.category] = (expenseTotals[item.category] || 0) + Number(item.amount);
+    });
+    const expenseLabels = Object.keys(expenseTotals);
+    const expenseData = Object.values(expenseTotals);
+
+    const ctxExpense = document.getElementById('expenseChart').getContext('2d');
+    if (expenseChart) expenseChart.destroy();
+
+    expenseChart = new Chart(ctxExpense, {
+        type: 'doughnut',
+        data: {
+            labels: expenseLabels.length > 0 ? expenseLabels : ['ยังไม่มีรายจ่าย'],
+            datasets: [{
+                data: expenseData.length > 0 ? expenseData : [1],
+                backgroundColor: ['#D4A373', '#CCD5AE', '#E9EDC9', '#FAEDCD', '#F4A261', '#E76F51', '#E4E4E7'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { family: "'Prompt', sans-serif", size: 11 }, color: '#71717a', padding: 12 }
                 },
                 tooltip: {
                     backgroundColor: 'rgba(24, 24, 27, 0.9)',
@@ -131,16 +152,14 @@ function updateChart() {
     });
 }
 
-// ฟังก์ชันเริ่มต้นแอปพลิเคชัน
 function init() {
     listEl.innerHTML = '';
     transactions.forEach(addTransactionDOM);
     updateValues();
 }
 
-// 2. ฟอร์มบันทึกรายการ
 function addTransaction(e) {
-    e.preventDefault(); // ป้องกันเว็บรีเฟรช
+    e.preventDefault();
 
     if (textEl.value.trim() === '' || amountEl.value.trim() === '') {
         alert('กรุณากรอกข้อมูลให้ครบถ้วน');
@@ -148,7 +167,7 @@ function addTransaction(e) {
     }
 
     const transaction = {
-        id: Date.now(), // สร้าง ID ไม่ซ้ำกันด้วย Timestamp
+        id: Date.now(),
         text: textEl.value,
         amount: +amountEl.value,
         type: typeEl.value,
@@ -161,25 +180,19 @@ function addTransaction(e) {
     updateValues();
     updateLocalStorage();
 
-    // เคลียร์ค่าในฟอร์มหลังกดบันทึก
     textEl.value = '';
     amountEl.value = '';
 }
 
-// ฟังก์ชันลบรายการ
 function removeTransaction(id) {
     transactions = transactions.filter(item => item.id !== id);
     updateLocalStorage();
     init();
 }
 
-// 5. ระบบบันทึกข้อมูลลงใน LocalStorage
 function updateLocalStorage() {
     localStorage.setItem('transactions', JSON.stringify(transactions));
 }
 
-// ผูก Event ฟังชั่นตอนกด Submit ฟอร์ม
 formEl.addEventListener('submit', addTransaction);
-
-// เริ่มต้นรันโปรแกรม
 init();
