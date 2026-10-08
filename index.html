@@ -4,27 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>บันทึกรายรับรายจ่าย - Minimal Style</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Google Fonts: Prompt -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/heroicons@2.0.18/css/outline/heroicons-outline.min.css">
     <style>
         body { font-family: 'Prompt', sans-serif; }
-        /* พื้นหลังโทนสีครีม-เทามินิมอล (Warm Neutral) */
         .bg-minimal { background-color: #F9F8F6; }
     </style>
 </head>
 <body class="bg-minimal text-zinc-800 min-h-screen py-10 px-4 md:py-16">
 
     <div class="max-w-xl mx-auto space-y-6">
-        <!-- Header โทนสีครีมละมุน ขอบมนสะอาดตา -->
+        <!-- Header -->
         <div class="bg-white border border-zinc-200/80 p-8 rounded-3xl shadow-xs text-center">
             <h1 class="text-2xl md:text-3xl font-semibold tracking-tight text-zinc-900">บันทึกรายรับรายจ่าย</h1>
             <p class="text-zinc-400 text-sm mt-1">Minimal Expense Tracker</p>
         </div>
 
-        <!-- Dashboard สรุปยอด (โทนสีสว่าง ขอบบาง Clean Look) -->
+        <!-- Dashboard สรุปยอด -->
         <div class="grid grid-cols-3 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-xs">
                 <p class="text-xs text-zinc-400 font-medium mb-1">ยอดคงเหลือ</p>
@@ -68,44 +68,4 @@
                 <div>
                     <label class="block text-xs font-medium text-zinc-500 mb-2">ชื่อรายการ / โน้ตเพิ่มเติม</label>
                     <input type="text" id="text" placeholder="เช่น ค่ากาแฟ, เงินเดือนออก" required
-                        class="w-full p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:border-zinc-400 transition">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-medium text-zinc-500 mb-2">จำนวนเงิน (บาท)</label>
-                    <input type="number" id="amount" placeholder="0.00" step="any" required
-                        class="w-full p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:border-zinc-400 transition font-medium">
-                </div>
-
-                <button type="submit" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-medium p-3.5 rounded-xl text-sm transition duration-200 cursor-pointer shadow-xs">
-                    บันทึกรายการ
-                </button>
-            </form>
-
-            <!-- กราฟสรุปสัดส่วน (โทนสีเอิร์ธทอน/พาสเทลอ่อนๆ) -->
-            <div class="bg-white p-7 rounded-3xl border border-zinc-200/80 shadow-xs h-full flex flex-col">
-                <h2 class="font-medium text-zinc-900 text-base border-b border-zinc-100 pb-3 text-center">สัดส่วนรายจ่าย</h2>
-                <div class="w-full flex-grow flex items-center justify-center mt-4">
-                    <div class="w-full max-w-[240px] h-auto aspect-square">
-                        <canvas id="expenseChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ประวัติรายการ -->
-        <div class="bg-white p-7 rounded-3xl border border-zinc-200/80 shadow-xs">
-            <h2 class="font-medium text-zinc-900 text-base border-b border-zinc-100 pb-3 mb-4">ประวัติรายการ</h2>
-            <ul id="list" class="space-y-3 max-h-80 overflow-y-auto pr-1">
-                <!-- รายการจะเพิ่มเข้ามาตรงนี้ -->
-            </ul>
-        </div>
-        
-        <div class="text-center text-zinc-400 text-xs py-2">
-            Minimal Design Project
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+                        class="w-full p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:border-zinc-40
