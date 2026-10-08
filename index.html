@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>เว็บแอปพลิเคชันบันทึกรายรับรายจ่าย</title>
-    <!-- เรียกใช้ Tailwind CSS ผ่าน CDN เพื่อความสะดวกในการจัดสไตล์ -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Chart.js สำหรับทำกราฟ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Prompt', sans-serif; }
@@ -13,7 +15,7 @@
 </head>
 <body class="bg-slate-100 min-h-screen py-8 px-4">
 
-    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden mb-10">
         <!-- Header -->
         <div class="bg-indigo-600 text-white p-6 text-center">
             <h1 class="text-2xl font-bold">บันทึกรายรับรายจ่าย</h1>
@@ -21,7 +23,7 @@
         </div>
 
         <div class="p-6 space-y-6">
-            <!-- ส่วนสรุปยอด (Summary Cards) -->
+            <!-- 1. หน้า Dashboard สรุปยอด -->
             <div class="grid grid-cols-3 gap-3 text-center">
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
                     <p class="text-xs text-slate-500">คงเหลือ</p>
@@ -37,12 +39,12 @@
                 </div>
             </div>
 
-            <!-- ฟอร์มเพิ่มรายการ -->
+            <!-- 2. ฟอร์มบันทึกรายการ (เลือกประเภท, หมวดหมู่, จำนวนเงิน, โน้ต) -->
             <form id="transaction-form" class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <h2 class="font-semibold text-slate-700 text-sm">เพิ่มรายการใหม่</h2>
                 
                 <div>
-                    <label class="block text-xs text-slate-600 mb-1">ประเภท</label>
+                    <label class="block text-xs text-slate-600 mb-1">ประเภทรายการ</label>
                     <select id="type" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="income">รายรับ</option>
                         <option value="expense">รายจ่าย</option>
@@ -50,8 +52,20 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs text-slate-600 mb-1">ชื่อรายการ / หมวดหมู่</label>
-                    <input type="text" id="text" placeholder="เช่น เงินเดือน, ค่าอาหาร, ค่าเดินทาง" required
+                    <label class="block text-xs text-slate-600 mb-1">หมวดหมู่</label>
+                    <select id="category" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="อาหาร">🍜 อาหาร</option>
+                        <option value="เดินทาง">🚗 เดินทาง</option>
+                        <option value="บันเทิง">🎉 บันเทิง</option>
+                        <option value="บิล/ค่าน้ำไฟ">💡 บิล / สาธารณูปโภค</option>
+                        <option value="เงินเดือน">💰 เงินเดือน</option>
+                        <option value="อื่นๆ">📌 อื่นๆ</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-600 mb-1">ชื่อรายการ / โน้ตเพิ่มเติม</label>
+                    <input type="text" id="text" placeholder="เช่น ข้าวมันไก่, ค่ารถไฟฟ้า" required
                         class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
@@ -66,17 +80,26 @@
                 </button>
             </form>
 
-            <!-- ประวัติรายการ -->
+            <!-- 4. กราฟสรุปสัดส่วนรายจ่าย -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+                <h2 class="font-semibold text-slate-700 text-sm mb-3 text-center">สัดส่วนรายจ่ายตามหมวดหมู่</h2>
+                <div class="w-full flex justify-center">
+                    <div class="w-64 h-64">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. ตารางประวัติรายการ (พร้อมปุ่มลบ) -->
             <div>
                 <h2 class="font-semibold text-slate-700 text-sm mb-3">ประวัติรายการ</h2>
                 <ul id="list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                    <!-- รายการจะถูกเพิ่มเข้ามาตรงนี้ด้วย JavaScript -->
+                    <!-- รายการจะถูกเพิ่มอัตโนมัติ -->
                 </ul>
             </div>
         </div>
     </div>
 
-    <!-- โค้ด JavaScript จะใส่ไว้ในขั้นตอนถัดไป -->
     <script src="script.js"></script>
 </body>
 </html>

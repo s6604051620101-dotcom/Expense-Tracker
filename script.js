@@ -1,4 +1,3 @@
-// ดึง Element HTML ที่ต้องใช้งาน
 const balanceEl = document.getElementById('balance');
 const totalIncomeEl = document.getElementById('total-income');
 const totalExpenseEl = document.getElementById('total-expense');
@@ -7,54 +6,50 @@ const formEl = document.getElementById('transaction-form');
 const textEl = document.getElementById('text');
 const amountEl = document.getElementById('amount');
 const typeEl = document.getElementById('type');
+const categoryEl = document.getElementById('category');
 
-// โหลดข้อมูลเดิมจาก LocalStorage (ถ้ามี) หรือกำหนดให้เป็นอาร์เรย์ว่าง
+// 5. ระบบบันทึกข้อมูล (LocalStorage)
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+let expenseChart = null;
 
-// ฟังก์ชันสำหรับจัดรูปแบบตัวเลขให้เป็นเงินบาท (เช่น 1,000.00)
 function formatNumber(num) {
     return Number(num).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// ฟังก์ชันอัปเดตยอดรวมและแสดงผลบนหน้าจอ
+// 1. หน้า Dashboard สรุปยอด
 function updateValues() {
-    // แยกยอดรายรับและรายจ่าย
-    const amounts = transactions.map(item => item.type === 'income' ? Number(item.amount) : -Number(item.amount));
-    
-    // คำนวณยอดรวมทั้งหมด
-    const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
-    
-    // คำนวณรายรับรวม
     const income = transactions
         .filter(item => item.type === 'income')
-        .reduce((acc, item) => (acc += Number(item.amount)), 0)
-        .toFixed(2);
+        .reduce((acc, item) => (acc += Number(item.amount)), 0);
         
-    // คำนวณรายจ่ายรวม
     const expense = transactions
         .filter(item => item.type === 'expense')
-        .reduce((acc, item) => (acc += Number(item.amount)), 0)
-        .toFixed(2);
+        .reduce((acc, item) => (acc += Number(item.amount)), 0);
 
-    // แสดงผลลงในหน้า HTML
+    const total = income - expense;
+
     balanceEl.innerText = `฿${formatNumber(total)}`;
     totalIncomeEl.innerText = `฿${formatNumber(income)}`;
     totalExpenseEl.innerText = `฿${formatNumber(expense)}`;
+
+    updateChart();
 }
 
-// ฟังก์ชันแสดงรายการลงในตาราง/รายการย่อย
+// 3. ตารางประวัติรายการ พร้อมปุ่มลบ
 function addTransactionDOM(transaction) {
     const sign = transaction.type === 'income' ? '+' : '-';
     const classColor = transaction.type === 'income' ? 'border-emerald-500 text-emerald-600' : 'border-rose-500 text-rose-600';
-    const bgBadge = transaction.type === 'income' ? 'bg-emerald-50' : 'bg-rose-50';
 
     const li = document.createElement('li');
     li.className = `flex justify-between items-center p-3 bg-white rounded-xl border-l-4 ${classColor} shadow-xs transition hover:shadow-md`;
 
     li.innerHTML = `
         <div>
-            <span class="font-medium text-slate-800 text-sm block">${transaction.text}</span>
-            <span class="text-xs text-slate-400">${new Date(transaction.id).toLocaleDateString('th-TH')}</span>
+            <div class="flex items-center space-x-2">
+                <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-medium">${transaction.category}</span>
+                <span class="font-medium text-slate-800 text-sm">${transaction.text}</span>
+            </div>
+            <span class="text-xs text-slate-400 mt-1 block">${new Date(transaction.id).toLocaleDateString('th-TH')}</span>
         </div>
         <div class="flex items-center space-x-3">
             <span class="font-semibold text-sm ${classColor}">
@@ -69,16 +64,58 @@ function addTransactionDOM(transaction) {
     listEl.appendChild(li);
 }
 
-// ฟังก์ชันเริ่มต้นแอปพลิเคชัน
+// 4. กราฟสรุปสัดส่วน (Chart.js)
+function updateChart() {
+    // กรองเฉพาะรายการที่เป็นรายจ่ายมาคำนวณแยกตามหมวดหมู่
+    const expenseItems = transactions.filter(item => item.type === 'expense');
+    
+    const categoryTotals = {};
+    expenseItems.forEach(item => {
+        categoryTotals[item.category] = (categoryTotals[item.category] || 0) + Number(item.amount);
+    });
+
+    const labels = Object.keys(categoryTotals);
+    const data = Object.values(categoryTotals);
+
+    const ctx = document.getElementById('expenseChart').getContext('2d');
+
+    if (expenseChart) {
+        expenseChart.destroy(); // ล้างกราฟเก่าก่อนวาดใหม่
+    }
+
+    expenseChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels.length > 0 ? labels : ['ยังไม่มีรายจ่าย'],
+            datasets: [{
+                data: data.length > 0 ? data : [1],
+                backgroundColor: ['#f43f5e', '#fb923c', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa', '#cbd5e1']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { family: 'Prompt', size: 11 }
+                    }
+                }
+            }
+        }
+    });
+}
+
 function init() {
     listEl.innerHTML = '';
     transactions.forEach(addTransactionDOM);
     updateValues();
 }
 
-// ฟังก์ชันเพิ่มรายการใหม่เมื่อกด Submit ฟอร์ม
+// 2. ฟอร์มบันทึกรายการ
 function addTransaction(e) {
-    e.preventDefault(); // ป้องกันไม่ให้เว็บรีเฟรช
+    e.preventDefault();
 
     if (textEl.value.trim() === '' || amountEl.value.trim() === '') {
         alert('กรุณากรอกข้อมูลให้ครบถ้วน');
@@ -86,10 +123,11 @@ function addTransaction(e) {
     }
 
     const transaction = {
-        id: Date.now(), // ใช้ Timestamp เป็น ID ที่ไม่ซ้ำกัน
+        id: Date.now(),
         text: textEl.value,
         amount: +amountEl.value,
-        type: typeEl.value
+        type: typeEl.value,
+        category: categoryEl.value
     };
 
     transactions.push(transaction);
@@ -98,25 +136,19 @@ function addTransaction(e) {
     updateValues();
     updateLocalStorage();
 
-    // ล้างค่าในฟอร์มหลังบันทึก
     textEl.value = '';
     amountEl.value = '';
 }
 
-// ฟังก์ชันลบรายการ
 function removeTransaction(id) {
     transactions = transactions.filter(item => item.id !== id);
     updateLocalStorage();
     init();
 }
 
-// ฟังก์ชันบันทึกข้อมูลลงใน LocalStorage ของบราวเซอร์
 function updateLocalStorage() {
     localStorage.setItem('transactions', JSON.stringify(transactions));
 }
 
-// ผูก Event Listener กับฟอร์ม
 formEl.addEventListener('submit', addTransaction);
-
-// รันโปรแกรมครั้งแรกเมื่อเปิดเว็บ
 init();
